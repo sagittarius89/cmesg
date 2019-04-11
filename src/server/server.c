@@ -9,7 +9,7 @@
 #include <pthread.h>
 
 #include "../shared.h"
-#include "../cmsg_list.h"
+#include "cmsg_list.h"
  
 void connection_handler(void *);
 void* client_list_ptr;
