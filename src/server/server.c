@@ -6,7 +6,7 @@
 #include<sys/shm.h> 
 #include<arpa/inet.h>
 #include<unistd.h>
-#include <pthread.h>
+#include<pthread.h>
 
 #include "../shared.h"
 #include "cmsg_list.h"
@@ -112,9 +112,9 @@ void connection_handler(void *socket_desc)
         perror("recv failed");
     } 
 
-    dispose_connection(sock);
+    //dispose_connection(sock);
 
-    free(client_message);
+    //free(client_message);
 
     return;
 }

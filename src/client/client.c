@@ -16,6 +16,7 @@ int receive_ehlo(int sockfd, struct cmsg_message* message);
 int login_user(int sockfd, struct cmsg_message* message);
 void server_msg_handler(int sockfd);
 void parse_commands(int sockfd);
+void join_to_chat(int sockfd, struct cmsg_message* message);
 
 struct options* options;
 
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
 	message = malloc(sizeof(struct cmsg_message));
 
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons((char*)options->port);
+    serv_addr.sin_port = htons(options->port);
 
     if(inet_pton(AF_INET, (char*)options->address, &serv_addr.sin_addr)<=0)
     {
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         printf("\n Error : Connect Failed \n");
         return 1;
@@ -69,6 +70,8 @@ int main(int argc, char *argv[])
         server_msg_handler(sockfd);
         return 0;
     }
+
+	join_to_chat(sockfd,message);
 
     parse_commands(sockfd);
 
@@ -116,11 +119,11 @@ int receive_ehlo(int sockfd, struct cmsg_message* message)
 int login_user(int sockfd, struct cmsg_message* message)
 {
     message->command_type = LOGIN;
-    strcpy(message->body , options->nick);
+    strcpy(message->body , (char*)options->nick);
 
     write(sockfd, message, sizeof(struct cmsg_message));
 
-    int n=read(sockfd, message, sizeof(message));
+    int n=read(sockfd, message, sizeof(message)); 
 
     if(n < 0)
     {

@@ -1,8 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <arpa/inet.h>
 #include "utils.h"
-
+#include "../shared.h"
 
 
 void print_help()
@@ -19,31 +23,43 @@ struct options* parse_args(char argc, char** argv)
     struct options* parsed_options = malloc(sizeof(struct options));   
     int option_index = 0;
     int opt;
+    int show_help=0;
 
-    strcpy(parsed_options->port,"8888");
-    parsed_options->show_help=0;
+    memset(parsed_options, 0, sizeof(struct options));
 
-    while((opt = getopt_long(argc, argv, "ha:p:n:",option_index,&options_args)) != -1)  
-    {  
+    parsed_options->port = DEFAULT_PORT;
+    parsed_options->show_help = 0;
+
+    while((opt = getopt_long(argc, argv, "ha:p:n:",options_args,&option_index)) != -1)  
+    {
         switch(opt)  
         {  
             case 'a':
                 strcpy(parsed_options->address, optarg);
             break;
             case 'n':
-                strncpy(parsed_options->nick, optarg, sizeof(optarg));
-                parsed_options->nick[sizeof(optarg)+1]='\0';
+                strcpy(parsed_options->nick, optarg);
             break;
             case 'p':
-                strcpy(parsed_options->port, optarg);
+                if(valid_number(optarg))
+                {
+                    parsed_options->port = (unsigned short)atoi(optarg);
+                }
+                else
+                {
+                    show_help=1;
+                    break;
+                }
             break;
             case 'h':
-                parsed_options->show_help=1;
+                show_help=1;
             break;
         }  
     }
 
-    return parsed_options; //0x555555758260
+    parsed_options->show_help=show_help;
+
+    return parsed_options;
 }
 
 int validate_args(struct options* parsed_options)
@@ -51,14 +67,6 @@ int validate_args(struct options* parsed_options)
     if(!is_valid_ip(parsed_options->address))
     {
         printf("invalid ip address\n");
-        print_help();
-
-        return 0;
-    }
-
-    if(!valid_number(parsed_options->port))
-    {
-        printf("invalid port\n");
         print_help();
 
         return 0;
