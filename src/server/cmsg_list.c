@@ -53,7 +53,7 @@ void cmsg_list_remove_node(void* head, int sockfd) {
     if(sockfd<1)
         return;
 
-    NODE* temp=0;
+    NODE* temp=NULL;
 
     for(int i=0; i<sizeof(NODE)*MAX_CLIENTS; i+=sizeof(NODE))
     {
@@ -64,7 +64,7 @@ void cmsg_list_remove_node(void* head, int sockfd) {
     }
 
     if(temp->sockfd != 0)
-        memset(temp, '0',sizeof(NODE));
+        memset(temp, 0,sizeof(NODE));
 }
 
 int cmsg_list_lookup_by_login(void* head, char* login) {
