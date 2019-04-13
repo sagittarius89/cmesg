@@ -12,12 +12,12 @@ struct cmsg_message
 
 enum cmsg_message_type
 {
-    EHLO=0,
-    OK=1,
-    LOGIN=2,
-    SND_MSG=3,
-    ERROR=4,
-    PRINT_LIST=5
+    CMESG_EHLO=0,
+    CMESG_OK=1,
+    CMESG_LOGIN=2,
+    CMESG_SND_MSG=3,
+    CMESG_ERROR=4,
+    CMESG_PRINT_LIST=5
 };
 
 int send_ehlo(int sockfd, struct cmsg_message* message);

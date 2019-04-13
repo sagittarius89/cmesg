@@ -123,9 +123,9 @@ void connection_handler(void *socket_desc)
         perror("recv failed");
     } 
 
-    //dispose_connection(sock);
+    dispose_connection(sock);
 
-    //free(client_message);
+    free(client_message);
 
     return;
 }
@@ -171,19 +171,19 @@ void process_request(int sockfd, struct cmsg_message * client_message)
 {
     switch(client_message->command_type)
     {
-        case EHLO:
+        case CMESG_EHLO:
             send_ehlo(sockfd, client_message);
         break;
 
-        case LOGIN:
+        case CMESG_LOGIN:
             login_user(sockfd, client_message);
         break;
 
-        case SND_MSG:
+        case CMESG_SND_MSG:
             broadcast_msg(sockfd, client_message);
         break;
 
-        case PRINT_LIST:
+        case CMESG_PRINT_LIST:
             clear_buffer(client_message);
             cmsg_list_print_list(client_list_ptr,client_message->body);
 
@@ -193,7 +193,7 @@ void process_request(int sockfd, struct cmsg_message * client_message)
 }
 
 void dispose_connection(sockfd)
-{ 
+{
     cmsg_list_remove_node(client_list_ptr,sockfd);
     close(sockfd);
 }

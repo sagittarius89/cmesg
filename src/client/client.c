@@ -21,7 +21,7 @@ int receive_ehlo(int sockfd, struct cmsg_message* message);
 int login_user(int sockfd, struct cmsg_message* message);
 void server_msg_handler(int sockfd);
 void parse_commands(int sockfd);
-void join_to_chat(int sockfd, struct cmsg_message* message);
+int join_to_chat(int sockfd, struct cmsg_message* message);
 void sigint_handler(int sig_num);
 void print_help();
 
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-int_fast8_t join_to_chat(int sockfd, struct cmsg_message* message)
+int join_to_chat(int sockfd, struct cmsg_message* message)
 {
     if(send_ehlo(sockfd, message)<0)
         return -1;
@@ -116,7 +116,7 @@ int_fast8_t join_to_chat(int sockfd, struct cmsg_message* message)
 
 int receive_ehlo(int sockfd, struct cmsg_message* message)
 {
-    int n=read(sockfd, message, sizeof(message));
+    int n=read(sockfd, message, sizeof(struct cmsg_message));
 
     if(n < 0)
     {
@@ -124,7 +124,7 @@ int receive_ehlo(int sockfd, struct cmsg_message* message)
         return -1;
     }
 
-    if(message->command_type==EHLO)
+    if(message->command_type==CMESG_EHLO)
     {
         w_print_info("EHLO ok");
 
@@ -140,12 +140,12 @@ int receive_ehlo(int sockfd, struct cmsg_message* message)
 
 int login_user(int sockfd, struct cmsg_message* message)
 {
-    message->command_type = LOGIN;
+    message->command_type = CMESG_LOGIN;
     strcpy(message->body , (char*)options->nick);
 
     write(sockfd, message, sizeof(struct cmsg_message));
 
-    int n=read(sockfd, message, sizeof(message)); 
+    int n=read(sockfd, message, sizeof(struct cmsg_message)); 
 
     char tmp[100];
 
@@ -155,7 +155,7 @@ int login_user(int sockfd, struct cmsg_message* message)
         return -1;
     }
 
-    if(message->command_type==OK)
+    if(message->command_type==(int)CMESG_OK)
     {
         strcat(tmp, "Welcome! You are logged in with login ");
         strcat(tmp, options->nick);
@@ -164,7 +164,7 @@ int login_user(int sockfd, struct cmsg_message* message)
 
         return 1;
     }
-    else if(message->command_type==ERROR)
+    else if(message->command_type==(int)CMESG_ERROR)
     {
         strcat(tmp, "LOGIN failed, ");
         strcat(tmp, message->body);
@@ -182,7 +182,7 @@ void server_msg_handler(int sockfd)
 
     while(1)
     {
-        int n=read(sockfd, &message, sizeof(message));
+        int n=read(sockfd, &message, sizeof(struct cmsg_message));
 
         if(n < 0)
         {
@@ -190,7 +190,7 @@ void server_msg_handler(int sockfd)
             return;
         }
 
-        if(message.command_type==SND_MSG)
+        if(message.command_type==CMESG_SND_MSG)
         {
             w_print_msg(message.body);
         }

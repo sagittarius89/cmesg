@@ -62,7 +62,7 @@ void cmsg_list_remove_node(void* head, int sockfd) {
 
     for(int i=0; i<sizeof(NODE)*MAX_CLIENTS; i+=sizeof(NODE))
     {
-        NODE* temp=head+i;
+        temp=head+i;
 
         if(temp->sockfd==sockfd)
             break;
