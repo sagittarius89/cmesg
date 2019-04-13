@@ -2,6 +2,12 @@
 #define CMSG_LIST_H
 
 #define MAX_CLIENTS 256
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/shm.h> 
+#include <string.h>
+
 typedef struct {
     int  sockfd;
     char nick[16];

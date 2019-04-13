@@ -1,6 +1,9 @@
 #ifndef SHARED_H
 #define SHARED_H
 
+#include <string.h>
+#include <unistd.h>
+
 #define DEFAULT_PORT 8889
 
 struct cmsg_message

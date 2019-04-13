@@ -1,13 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
-#include <getopt.h>
-#include <arpa/inet.h>
 #include "utils.h"
-#include "../shared.h"
-
 
 void print_help()
 {

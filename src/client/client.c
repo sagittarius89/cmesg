@@ -19,11 +19,12 @@
 
 int receive_ehlo(int sockfd, struct cmsg_message* message);
 int login_user(int sockfd, struct cmsg_message* message);
-void server_msg_handler(int sockfd);
+void* server_msg_handler(void* sockfd);
 void parse_commands(int sockfd);
 int join_to_chat(int sockfd, struct cmsg_message* message);
 void sigint_handler(int sig_num);
 void print_help();
+void print_scr_help();
 
 struct options* options;
 
@@ -77,7 +78,7 @@ int main(int argc, char *argv[])
 
     pthread_t thread_id;
 
-    if( pthread_create( &thread_id , NULL ,  server_msg_handler , options->sockfd))
+    if(pthread_create(&thread_id, NULL,  server_msg_handler, NULL))
     {
         w_print_err("could not create thread");
         return 1;
@@ -91,7 +92,7 @@ int main(int argc, char *argv[])
         close(options->sockfd);
     }
 
-    wrefresh(chatWin);
+    wrefresh(chat_win);
     endwin();
 
 	free(message);
@@ -175,8 +176,9 @@ int login_user(int sockfd, struct cmsg_message* message)
     return -1;
 }
 
-void server_msg_handler(int sockfd)
+void* server_msg_handler(void* args)
 {
+    int sockfd=options->sockfd;
     struct cmsg_message message;
     clear_buffer(&message);
 
@@ -187,7 +189,7 @@ void server_msg_handler(int sockfd)
         if(n < 0)
         {
             w_print_err("SND_MSG error");
-            return;
+            return NULL;
         }
 
         if(message.command_type==CMESG_SND_MSG)
@@ -235,7 +237,7 @@ void sigint_handler(int sig_num) {
    if (options->sockfd) {
       close(options->sockfd);
    }
-   wrefresh(chatWin);
+   wrefresh(chat_win);
    endwin();
    exit(0);
 }

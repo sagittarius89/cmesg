@@ -8,22 +8,14 @@
 #include<unistd.h>
 #include<pthread.h>
 
-/*
-1. Poprawić obsługę wyświetlania czatu
-2. Dodać obsługę wychodzenia z programu (jakieś komendy)
-3. Napisać readme
-4. DOpisać do makefile budowanie jedną komendą
-6. Sprawdzić server pod kątem wychodzenia i wchodzenia uzytkownikow
-7. Wyczyścić kod z niepotrzebnych importów
-8. Poprawić standardy kodowania
-9. Poszukać wycieków pamięci
-*/
-
 #include "../shared.h"
 #include "cmsg_list.h"
  
 void connection_handler(void *);
+void dispose_server();
 void* client_list_ptr;
+void process_request(int sockfd, struct cmsg_message * client_message);
+void dispose_connection(int sockfd);
 int shmid;
  
 int main(int argc , char *argv[])
@@ -72,7 +64,7 @@ int main(int argc , char *argv[])
         printf("Connection accepted\n");
         pthread_t thread_id;
 
-        if( pthread_create( &thread_id , NULL ,  connection_handler , (void*) &client_sock) < 0)
+        if(pthread_create(&thread_id, NULL,  (void*)connection_handler ,(void*) &client_sock) < 0)
         {
             perror("could not create thread");
             return 1;
@@ -155,16 +147,25 @@ int login_user(int sockfd, struct cmsg_message* message)
 void broadcast_msg(int sockfd, struct cmsg_message* message)
 {
     char fullmsg[4098];
-    char* nick = cmsg_list_lookup_by_sockfd(client_list_ptr, sockfd)->nick;
+    char* nick;
+    NODE* node;
+    
+    node = cmsg_list_lookup_by_sockfd(client_list_ptr, sockfd);
 
-    memset(&fullmsg,0,sizeof(fullmsg));
 
-    strcat(fullmsg,"@");
-    strcat(fullmsg,nick);
-    strcat(fullmsg,": ");
-    strcat(fullmsg,message->body);
+    if(node != NULL)
+    {
+        nick = node->nick;
+        
+        memset(&fullmsg,0,sizeof(fullmsg));
 
-    cmsg_list_execute_for_all(client_list_ptr,send_msg,fullmsg);
+        strcat(fullmsg,"@");
+        strcat(fullmsg,nick);
+        strcat(fullmsg,": ");
+        strcat(fullmsg,message->body);
+
+        cmsg_list_execute_for_all(client_list_ptr,(void*)send_msg,fullmsg);
+    }
 }
 
 void process_request(int sockfd, struct cmsg_message * client_message)
@@ -192,7 +193,7 @@ void process_request(int sockfd, struct cmsg_message * client_message)
     }
 }
 
-void dispose_connection(sockfd)
+void dispose_connection(int sockfd)
 {
     cmsg_list_remove_node(client_list_ptr,sockfd);
     close(sockfd);
@@ -205,6 +206,6 @@ void* close_connection(NODE* connection)
 
 void dispose_server()
 {
-    cmsg_list_free_list(client_list_ptr,close_connection);
+    cmsg_list_free_list(client_list_ptr,(void*)close_connection);
     shmctl(shmid,IPC_RMID,NULL);
 }

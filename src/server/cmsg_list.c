@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/shm.h> 
-#include <string.h>
-
 #include "cmsg_list.h"
 
 void* cmsg_list_init(int shmid) {
@@ -43,7 +38,7 @@ NODE* cmsg_list_add(void* head, NODE data) {
 
     if(temp->sockfd != 0)
     {
-        return -1;
+        return NULL;
     }
 
     temp->sockfd = data.sockfd;
@@ -97,7 +92,7 @@ NODE* cmsg_list_lookup_by_sockfd(void* head, int sockfd) {
             return temp;
     }
 
-    return -1;
+    return NULL;
 }
 
 void cmsg_list_free_list(void* head,void* (close_func)(int))
