@@ -8,21 +8,27 @@
 #include <unistd.h>
 #include <errno.h>
 #include <arpa/inet.h>
+#include <signal.h>
+#include <pthread.h>
 
 #include "../shared.h"
 #include "utils.h"
+#include "display.h"
+#include "input.h"
+
 
 int receive_ehlo(int sockfd, struct cmsg_message* message);
 int login_user(int sockfd, struct cmsg_message* message);
 void server_msg_handler(int sockfd);
 void parse_commands(int sockfd);
 void join_to_chat(int sockfd, struct cmsg_message* message);
+void sigint_handler(int sig_num);
 
 struct options* options;
 
 int main(int argc, char *argv[])
 {
-    int sockfd = 0, n = 0;
+    int n = 0;
     struct cmsg_message* message;
     struct sockaddr_in serv_addr;
 
@@ -39,7 +45,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    if((options->sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("\n Error : Could not create socket \n");
         return 1;
@@ -57,25 +63,35 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    if(connect(options->sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         printf("\n Error : Connect Failed \n");
         return 1;
     }
 
-    int pid = fork();
+    //init display
+    initialize_curses();
+    signal(SIGINT, sigint_handler);
+    signal(SIGWINCH, resize_handler);
 
-    if(pid==0)
+    pthread_t thread_id;
+
+    if( pthread_create( &thread_id , NULL ,  server_msg_handler , options->sockfd))
     {
-        server_msg_handler(sockfd);
-        return 0;
+        w_print_err("could not create thread");
+        return 1;
     }
 
-	join_to_chat(sockfd,message);
+	join_to_chat(options->sockfd,message);
 
-    parse_commands(sockfd);
+    parse_commands(options->sockfd);
 
-    close(sockfd);
+    if (options->sockfd) {
+        close(options->sockfd);
+    }
+
+    wrefresh(chatWin);
+    endwin();
 
 	free(message);
 	free(options);
@@ -98,19 +114,19 @@ int receive_ehlo(int sockfd, struct cmsg_message* message)
 
     if(n < 0)
     {
-        printf("\n EHLO error \n");
+        w_print_err("EHLO error");
         return -1;
     }
 
     if(message->command_type==EHLO)
     {
-        printf("\n EHLO ok \n");
+        w_print_info("EHLO ok");
 
         return 1;
     }
     else
     {
-        printf("\n EHLO failed \n");
+        w_print_err("EHLO failed");
     }
 
     return -1;
@@ -125,21 +141,29 @@ int login_user(int sockfd, struct cmsg_message* message)
 
     int n=read(sockfd, message, sizeof(message)); 
 
+    char tmp[100];
+
     if(n < 0)
     {
-        printf("\n LOGIN error, connection failed \n");
+        w_print_err("LOGIN error, connection failed");
         return -1;
     }
 
     if(message->command_type==OK)
     {
-        printf("\n You are logged in with login %s \n", options->nick);
+        strcat(tmp, "Welcome! You are logged in with login ");
+        strcat(tmp, options->nick);
+
+        w_print_info(tmp);
 
         return 1;
     }
     else if(message->command_type==ERROR)
     {
-        printf("\n LOGIN failed, %s \n", message->body);
+        strcat(tmp, "LOGIN failed, ");
+        strcat(tmp, message->body);
+
+        w_print_err(tmp);
     }
 
     return -1;
@@ -156,15 +180,13 @@ void server_msg_handler(int sockfd)
 
         if(n < 0)
         {
-            printf("\n SND_MSG error \n");
+            w_print_err("SND_MSG error");
             return;
         }
 
         if(message.command_type==SND_MSG)
         {
-            printf("%s\n", message.body);
-
-            fflush(stdout);
+            w_print_info(message.body);
         }
         else
         {
@@ -179,8 +201,8 @@ void parse_commands(int sockfd)
 
     while(1)
     {
-        memset(&cmd,0,sizeof(cmd));
-        fgets(cmd,4092,stdin);
+        memset(cmd,0,sizeof(cmd));
+        user_input(cmd);
 
         if(cmd[0]=='!')
         {
@@ -191,4 +213,14 @@ void parse_commands(int sockfd)
             send_msg(sockfd,cmd);
         }
     }
+}
+
+/* (CTRL+C) */
+void sigint_handler(int sig_num) {
+   if (options->sockfd) {
+      close(options->sockfd);
+   }
+   wrefresh(chatWin);
+   endwin();
+   exit(0);
 }

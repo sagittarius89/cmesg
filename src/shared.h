@@ -6,6 +6,7 @@
 struct cmsg_message
 {
     int    command_type;
+    char   nick[16];
     char   body[4092];
 };
 

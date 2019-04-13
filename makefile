@@ -17,13 +17,19 @@ CFLAGS := -g
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
+#all: dependencies
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS_SHARED) $(OBJS)
-	$(CC) $(OBJS_SHARED) $(OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(OBJS_SHARED) $(OBJS) -o $@ $(LDFLAGS) -lncurses
 
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ -lncurses
+
+dependencies:
+	# Install dependencies for cmesg:
+	sudo apt-get install ncurses-dev
+	touch $@
 
 .PHONY: clean
 

@@ -8,6 +8,17 @@
 #include<unistd.h>
 #include<pthread.h>
 
+/*
+1. Poprawić obsługę wyświetlania czatu
+2. Dodać obsługę wychodzenia z programu (jakieś komendy)
+3. Napisać readme
+4. DOpisać do makefile budowanie jedną komendą
+6. Sprawdzić server pod kątem wychodzenia i wchodzenia uzytkownikow
+7. Wyczyścić kod z niepotrzebnych importów
+8. Poprawić standardy kodowania
+9. Poszukać wycieków pamięci
+*/
+
 #include "../shared.h"
 #include "cmsg_list.h"
  

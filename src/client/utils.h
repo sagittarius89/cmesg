@@ -9,6 +9,7 @@ struct options
     char        address[16];
     uint16_t    port;
     int         show_help;
+    int         sockfd;
 };
 
 static struct option options_args[] =
