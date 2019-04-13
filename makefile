@@ -32,6 +32,7 @@ all:
 
 dependencies:
 	# Install dependencies for cmesg:
+	sudo apt install build-essential
 	sudo apt-get install ncurses-dev
 	touch $@
 
