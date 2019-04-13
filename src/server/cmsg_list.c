@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/shm.h> 
+#include <string.h>
 
 #include "cmsg_list.h"
 
@@ -11,20 +12,24 @@ void* cmsg_list_init(int shmid) {
     return addr_id;
 }
 
-void cmsg_list_print_list(void* head) {
+void cmsg_list_print_list(void* head, char* buff) {
     for(int i=0; i<sizeof(NODE)*MAX_CLIENTS; i+=sizeof(NODE))
     {
         NODE* temp = head+i;
 
-        if(temp->sockfd != 0)
+        if(temp->sockfd != 0) 
+        {
             printf("%d: %s\n", temp->sockfd, temp->nick);
+        
+            strcat(buff, "@");
+            strcat(buff, temp->nick);
+            strcat(buff, " ");
+        }
     }
 }
 
 NODE* cmsg_list_add(void* head, NODE data) {
     NODE* temp=0;
-
-    cmsg_list_print_list(head);
 
     for(int i=0; i<sizeof(NODE)*MAX_CLIENTS; i+=sizeof(NODE))
     {

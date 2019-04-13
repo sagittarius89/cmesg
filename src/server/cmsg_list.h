@@ -9,7 +9,7 @@ typedef struct {
 
 void* cmsg_list_init(int shmid);
 
-void cmsg_list_print_list(void* head);
+void cmsg_list_print_list(void* head, char* buff);
 
 NODE* cmsg_list_add(void* head, NODE data);
 

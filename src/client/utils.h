@@ -10,6 +10,7 @@ struct options
     uint16_t    port;
     int         show_help;
     int         sockfd;
+    int         logged_in;
 };
 
 static struct option options_args[] =

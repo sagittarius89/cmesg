@@ -23,6 +23,7 @@ void server_msg_handler(int sockfd);
 void parse_commands(int sockfd);
 void join_to_chat(int sockfd, struct cmsg_message* message);
 void sigint_handler(int sig_num);
+void print_help();
 
 struct options* options;
 
@@ -82,7 +83,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-	join_to_chat(options->sockfd,message);
+	options->logged_in = join_to_chat(options->sockfd,message);
 
     parse_commands(options->sockfd);
 
@@ -99,13 +100,18 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void join_to_chat(int sockfd, struct cmsg_message* message)
+int_fast8_t join_to_chat(int sockfd, struct cmsg_message* message)
 {
-    send_ehlo(sockfd, message);
+    if(send_ehlo(sockfd, message)<0)
+        return -1;
 
-    receive_ehlo(sockfd, message);
+    if(receive_ehlo(sockfd, message)<0)
+        return -1;
 
-    login_user(sockfd, message);
+    if(login_user(sockfd, message)<0)
+        return -1;
+
+    return 1;
 }
 
 int receive_ehlo(int sockfd, struct cmsg_message* message)
@@ -186,7 +192,7 @@ void server_msg_handler(int sockfd)
 
         if(message.command_type==SND_MSG)
         {
-            w_print_info(message.body);
+            w_print_msg(message.body);
         }
         else
         {
@@ -204,13 +210,22 @@ void parse_commands(int sockfd)
         memset(cmd,0,sizeof(cmd));
         user_input(cmd);
 
-        if(cmd[0]=='!')
+        if(strcmp(cmd, "/list")==0)
         {
             send_print_list(sockfd);
         }
+        else if(strcmp(cmd, "/help")==0)
+        {
+            print_scr_help();
+        }
+        else if(strcmp(cmd, "/quit")==0)
+        {
+           break;
+        }
         else
         {
-            send_msg(sockfd,cmd);
+            if(options->logged_in==1)
+                send_msg(sockfd,cmd);
         }
     }
 }
@@ -223,4 +238,9 @@ void sigint_handler(int sig_num) {
    wrefresh(chatWin);
    endwin();
    exit(0);
+}
+
+void print_scr_help()
+{
+    w_print_info("\ntype:\n  /help    to see this\n  /quit    to exit program\n  /list    print logged users list");
 }

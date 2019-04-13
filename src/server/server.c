@@ -137,7 +137,7 @@ int login_user(int sockfd, struct cmsg_message* message)
     if(cmsg_list_lookup_by_login(client_list_ptr,message->body)==1)
     {
         printf("nickname not available\n");
-        send_error(sockfd,message,"nickname not available\n");
+        send_error(sockfd,message,"this nickname has already been reserved\n");
     }
     else
     {
@@ -184,7 +184,10 @@ void process_request(int sockfd, struct cmsg_message * client_message)
         break;
 
         case PRINT_LIST:
-            cmsg_list_print_list(client_list_ptr);
+            clear_buffer(client_message);
+            cmsg_list_print_list(client_list_ptr,client_message->body);
+
+            send_msg(sockfd,client_message->body);
         break;
     }
 }
