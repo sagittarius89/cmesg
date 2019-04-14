@@ -120,14 +120,14 @@ void login_user(int sockfd, struct cmsg_message* message)
         printf("nickname not available\n");
         send_error(sockfd, message, "this nickname has already been reserved\n");
     } else {
+        strcpy(client_data.nick, message->body);
+        client_data.sockfd = sockfd;
 
         if (cmsg_list_add(client_list_ptr, client_data) == NULL) {
             printf("cannot login user %s, room is full. \n", message->body);
             send_error(sockfd, message, "cannot login user, room is full. \n");
         } else {
             printf("user logged as %s\n", message->body);
-            strcpy(client_data.nick, message->body);
-            client_data.sockfd = sockfd;
             send_ok(sockfd, message);
         }
     }
