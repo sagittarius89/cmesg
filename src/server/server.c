@@ -137,7 +137,7 @@ void login_user(int sockfd, struct cmsg_message* message)
         if(cmsg_list_add(client_list_ptr,client_data)==NULL)
         {
             printf("cannot login user %s, room is full. \n", message->body);
-            send_error(sockfd,message,"cannot login user %s, room is full. \n");
+            send_error(sockfd,message,"cannot login user, room is full. \n");
         }
         else
         {
