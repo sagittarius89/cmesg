@@ -1,0 +1,5 @@
+#format sources
+clang-format -i -style=WebKit *.cpp
+
+#launch 260 terminals with client
+for i in {1..260}; do gnome-terminal -x sh -c "./client.out -a 127.0.0.1 -n user_$i;" done; done

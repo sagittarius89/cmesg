@@ -36,6 +36,8 @@ and type:
 For now server works only on port 8889 so You must have this port unlocked in
 your router, client, and server machine.
 
+To stop server use CTRL + C.
+
 
 CLIENT
 
