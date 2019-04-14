@@ -49,7 +49,7 @@ nick name by args. For example:
 
 Usage: client [options]
   -a, --host       Setup server ip address
-  -p, --port       Setup server port (default 8888)
+  -p, --port       Setup server port (default 8889)
   -n, --nick       Setup your nick name (max 15 symbols)
   -h, --help       Print help
 
