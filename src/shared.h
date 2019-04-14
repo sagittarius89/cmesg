@@ -6,21 +6,19 @@
 
 #define DEFAULT_PORT 8889
 
-struct cmsg_message
-{
-    int    command_type;
-    char   nick[16];
-    char   body[4092];
+struct cmsg_message {
+    int command_type;
+    char nick[16];
+    char body[4092];
 };
 
-enum cmsg_message_type
-{
-    CMESG_EHLO=0,
-    CMESG_OK=1,
-    CMESG_LOGIN=2,
-    CMESG_SND_MSG=3,
-    CMESG_ERROR=4,
-    CMESG_PRINT_LIST=5
+enum cmsg_message_type {
+    CMESG_EHLO = 0,
+    CMESG_OK = 1,
+    CMESG_LOGIN = 2,
+    CMESG_SND_MSG = 3,
+    CMESG_ERROR = 4,
+    CMESG_PRINT_LIST = 5
 };
 
 int send_ehlo(int sockfd, struct cmsg_message* message);

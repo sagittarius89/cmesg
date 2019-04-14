@@ -5,11 +5,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/shm.h> 
 #include <string.h>
+#include <sys/shm.h>
 
 typedef struct {
-    int  sockfd;
+    int sockfd;
     char nick[16];
 } NODE;
 
@@ -25,8 +25,8 @@ int cmsg_list_lookup_by_login(void* head, char* login);
 
 NODE* cmsg_list_lookup_by_sockfd(void* head, int sockfd);
 
-void cmsg_list_free_list(void* head,void* (close_func)(int));
+void cmsg_list_free_list(void* head, void*(close_func)(int));
 
-void cmsg_list_execute_for_all(void* head,void* (func)(int,char*), char* data);
+void cmsg_list_execute_for_all(void* head, void*(func)(int, char*), char* data);
 
 #endif /* CMSG_LIST_H */
