@@ -189,6 +189,8 @@ void* server_msg_handler(void* args)
         if(n < 0)
         {
             w_print_err("SND_MSG error");
+            close(options->sockfd);
+            
             return NULL;
         }
 
