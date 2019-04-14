@@ -11,18 +11,18 @@ SRCS := $(shell find $(SRC_DIRS) -name *.c)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
-LDFLAGS := -lpthread
-CFLAGS := -g
+LDFLAGS := -lpthread -lncurses
+CFLAGS := -g -pedantic
 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS_SHARED) $(OBJS)
-	$(CC) $(OBJS_SHARED) $(OBJS) -o $@ $(LDFLAGS) -lncurses
+	$(CC) $(OBJS_SHARED) $(OBJS) -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@ -lncurses
+	$(CC) $(CFLAGS) -c $< -o $@
 
 all:
 	make clean

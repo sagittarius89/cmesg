@@ -15,18 +15,18 @@ typedef struct {
 
 void* cmsg_list_init(int shmid);
 
-void cmsg_list_print_list(void* head, char* buff);
+void cmsg_list_print_list(NODE* head, char* buff);
 
-NODE* cmsg_list_add(void* head, NODE data);
+NODE* cmsg_list_add(NODE* head, NODE data);
 
-void cmsg_list_remove_node(void* head, int sockfd);
+void cmsg_list_remove_node(NODE* head, int sockfd);
 
-int cmsg_list_lookup_by_login(void* head, char* login);
+int cmsg_list_lookup_by_login(NODE* head, char* login);
 
-NODE* cmsg_list_lookup_by_sockfd(void* head, int sockfd);
+NODE* cmsg_list_lookup_by_sockfd(NODE* head, int sockfd);
 
-void cmsg_list_free_list(void* head, void*(close_func)(int));
+void cmsg_list_free_list(NODE* head, void*(close_func)(int));
 
-void cmsg_list_execute_for_all(void* head, void*(func)(int, char*), char* data);
+void cmsg_list_execute_for_all(NODE* head, void*(func)(int, char*), char* data);
 
 #endif /* CMSG_LIST_H */

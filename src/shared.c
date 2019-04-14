@@ -27,7 +27,7 @@ void clear_buffer(struct cmsg_message* message)
     memset(message, 0, sizeof(struct cmsg_message));
 }
 
-void send_msg(int sockfd, char* data)
+void* send_msg(int sockfd, char* data)
 {
     struct cmsg_message message;
     clear_buffer(&message);

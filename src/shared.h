@@ -29,7 +29,7 @@ void send_error(int sockfd, struct cmsg_message* message, char* error_msg);
 
 void clear_buffer(struct cmsg_message* message);
 
-void send_msg(int sockfd, char* data);
+void* send_msg(int sockfd, char* data);
 
 void send_print_list(int sockfd);
 
