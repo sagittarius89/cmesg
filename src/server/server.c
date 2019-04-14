@@ -122,7 +122,7 @@ void connection_handler(void *socket_desc)
     return;
 }
 
-int login_user(int sockfd, struct cmsg_message* message)
+void login_user(int sockfd, struct cmsg_message* message)
 {
     NODE client_data;
 
@@ -133,14 +133,19 @@ int login_user(int sockfd, struct cmsg_message* message)
     }
     else
     {
-        printf("user logged as %s\n", message->body);
-        strcpy(client_data.nick,message->body);
-        client_data.sockfd=sockfd;
 
-        printf("shmid=%d\n", shmid);
-        cmsg_list_add(client_list_ptr,client_data);
-
-        send_ok(sockfd,message);
+        if(cmsg_list_add(client_list_ptr,client_data)==NULL)
+        {
+            printf("cannot login user %s, room is full. \n", message->body);
+            send_error(sockfd,message,"cannot login user %s, room is full. \n");
+        }
+        else
+        {
+            printf("user logged as %s\n", message->body);
+            strcpy(client_data.nick,message->body);
+            client_data.sockfd=sockfd;
+            send_ok(sockfd,message);
+        }
     }
 }
 
