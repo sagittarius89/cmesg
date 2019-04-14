@@ -4,7 +4,7 @@ void print_help()
 {
     printf("Usage: client [options]\n");
     printf("  -a, --host       Setup server ip address\n");
-    printf("  -p, --port       Setup server port (default 8888)\n");
+    printf("  -p, --port       Setup server port (default 8889)\n");
     printf("  -n, --nick       Setup your nick name (max 15 symbols)\n");
     printf("  -h, --help       Print help\n");
 }
@@ -27,6 +27,12 @@ struct options* parse_args(char argc, char** argv)
             strcpy(parsed_options->address, optarg);
             break;
         case 'n':
+            if(strlen(optarg)>15)
+            {
+                printf("nick to long\n");
+                show_help = 1;
+                break;
+            }
             strcpy(parsed_options->nick, optarg);
             break;
         case 'p':
@@ -50,6 +56,13 @@ struct options* parse_args(char argc, char** argv)
 
 int validate_args(struct options* parsed_options)
 {
+    if(strlen(parsed_options->nick)==0)
+    {
+        printf("You have to setup your nick name\n");
+        print_help();
+
+        return 0;
+    }
     if (!is_valid_ip(parsed_options->address)) {
         printf("invalid ip address\n");
         print_help();
